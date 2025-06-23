@@ -1,0 +1,53 @@
+
+* Record Raw IQ Data
+rtl_sdr -f 433920000 -s 2.4e6 -n 24000000 output.iq
+
+ Center frequency: 433.92 MHz
+ Sample rate: 2.4 Msps
+ 10 seconds of data: 24000000 samples at 2.4 Msps
+
+open output.iq in urh, rtl_433 or inspectrum directly.
+
+rtl_433 -r output.iq -s 2.4e6 -f 433920000 -A
+
+This lets you load the IQ data in Audacity with some processing:
+sox -t raw -r 2.4e6 -es -b 8 -c 2 output.iq output.wav
+XXX maybe -b 16?
+
+Use -c 2 for I/Q stereo format. You can see phase/amplitude variations visually in Audacity
+
+
+IQ Sample Rate: 2.4 MS/s
+
+    Standard for RTL-SDR (maximum reliable rate)
+
+
+
+* Use rtl_fm to demodulate and sox to save as a .wav file.
+
+rtl_fm -f 433920000 -s 22050 -M am -g 40 | sox -t raw -r 22050 -es -b 16 -c 1 -V1 - output.wav
+
+-f 433920000: Center frequency (adjust as needed)
+-s 22050: Audio sample rate
+-M am: Use AM demodulation (works well for OOK)
+-g 40: Gain
+sox: Converts raw audio stream to WAV format
+
+Make spectogram of wav. Use inspectrum for the IQ recording.
+sox input.wav -n spectrogram -o spectrogram.png
+
+Audio Sample Rate: 22.05 kHz
+
+    Enough to capture OOK/ASK pulses (typically in the 1–10 kHz range)
+
+    Compatible with Audacity, small file size
+
+    Prevents unnecessary overhead vs 44.1 kHz
+
+* Estimated File Sizes
+
+Format: 2 x 8-bit signed (I + Q) = 2 bytes/sample
+Example: 2.4M samples/sec × 2 bytes/sample × 10 sec = 48 mb
+
+Format: 16-bit signed PCM, mono = 2 bytes/sample
+Example: 22,050 samples/sec × 2 bytes/sample × 10 sec = 441 kB
