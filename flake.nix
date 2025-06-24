@@ -15,6 +15,14 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
+        # # Python environment with required packages
+        mypython = pkgs.python3.withPackages (ps: with ps; [
+          numpy
+          scipy
+          ipython
+          matplotlib
+        ]);
+
         # Core SDR packages
         sdrPackages = with pkgs; [
           rtl-sdr
@@ -22,21 +30,14 @@
           urh
           csdr  # cli IQ demodulater
           sox  # convert vaw files
+          inspectrum
           # sdrpp
           # audacity
         ];
 
-        # Python environment with required packages
-        python = pkgs.python3.withPackages (ps: with ps; [
-          numpy
-          scipy
-          ipython
-          # Add other Python dependencies here
-        ]);
-
         # Development tools
         devTools = with pkgs; [
-          python
+         mypython
         ];
 
       in {
@@ -50,16 +51,21 @@
         devShells.default = pkgs.mkShell {
           name = "sdr-dev";
 
-          buildInputs = sdrPackages ++ devTools;
+          buildInputs = sdrPackages ++ devTools ++ (with pkgs; [
+            # fix for matplotlib: qt.qpa.plugin: Could not find the Qt platform plugin "xcb"
+            pkgs.qt5.qtbase
+          ]);
 
           # Environment variables
-          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath sdrPackages;
-          PYTHONPATH = "${python}/${python.sitePackages}";
-
+          # LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath sdrPackages;
+          # PYTHONPATH = "${mypython}/${mypython.sitePackages}";
           shellHook = ''
             echo "SDR Development Environment"
-            echo "Python ${python.python.version} with numpy ${pkgs.python3Packages.numpy.version}"
+            echo "Python ${mypython.python.version}"
+            echo "with numpy ${mypython.pkgs.numpy.version}"
             echo "Available tools: ${builtins.concatStringsSep ", " (map (p: p.pname or p.name) sdrPackages)}"
+            # fix for matplotlib: qt.qpa.plugin: Could not find the Qt platform plugin "xcb"
+            export QT_QPA_PLATFORM_PLUGIN_PATH="${pkgs.qt5.qtbase}/lib/qt-${pkgs.qt5.qtbase.version}/plugins/platforms"
           '';
         };
 
