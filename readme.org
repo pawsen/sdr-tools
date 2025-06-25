@@ -51,3 +51,10 @@ Example: 2.4M samples/sec × 2 bytes/sample × 10 sec = 48 mb
 
 Format: 16-bit signed PCM, mono = 2 bytes/sample
 Example: 22,050 samples/sec × 2 bytes/sample × 10 sec = 441 kB
+
+
+LABEL = "capture", -l
+FREQ, default: "433.92MHz", -f
+SAMPLE, "250ksps", -s
+
+ rtl_433 -f $FREQ -s 1 -g 20 -A  -M level -M protocol -T 10 -Y level=-5 -W $LABEL_$FREQ_$SAMPLE.cu8  -W $LABEL_FREQ_$SAMPLE.ook -W $LABEL_$FREQ_$SAMPLE.am.s16

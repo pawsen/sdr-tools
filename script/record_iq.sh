@@ -20,7 +20,7 @@ GAIN="0"    # 0 for auto
 DURATION="" # Optional
 NO_TIMESTAMP=true
 LABEL="" # optional
-OUTPUT_DIR="."
+OUTPUT_DIR="recordings"
 
 usage() {
   echo "Usage: $0 [-f FREQ] [-s RATE] [-g GAIN] [-d SEC] [-m] [-l LABEL] [--timestamp] [-o DIR]"
@@ -43,7 +43,7 @@ Options:
   -d SEC     Duration in seconds (optional)
   -m         Save metadata JSON file
   -l LABEL   Optional recording label
-  -o DIR     Output directory (default: current dir)
+  -o DIR     Output directory (default: recordings/)
   -h         Show this help
 
 Examples:
